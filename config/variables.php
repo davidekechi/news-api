@@ -8,7 +8,6 @@ return [
     ],
 
     'rate_limiting' => [
-        'api'   => env('RATE_LIMIT_API', 120),
-        'short' => env('RATE_LIMIT_SHORT', 10),
+        'api' => env('RATE_LIMIT_API', 120),
     ]
 ];

@@ -46,45 +46,6 @@ trait ApiResponseTrait
     }
 
     /**
-     * Success response with custom data
-     *
-     * @param array<string, mixed> $data
-     * @param array<string, mixed> $meta
-     */
-    protected function successItem(
-        array $data,
-        string $message = 'Operation completed successfully.',
-        int $statusCode = 200,
-        array $meta = [],
-    ): JsonResponse {
-        return response()->json([
-            'status'  => 'success',
-            'code'    => $statusCode,
-            'message' => $message,
-            'data'    => $data,
-            'errors'  => [],
-            'meta'    => \array_merge(['pagination' => null], $meta),
-        ], $statusCode);
-    }
-
-    /**
-     * Success response with no data
-     */
-    protected function successMessage(
-        string $message = 'Operation completed successfully.',
-        int $statusCode = 200
-    ): JsonResponse {
-        return response()->json([
-            'status'  => 'success',
-            'code'    => $statusCode,
-            'message' => $message,
-            'data'    => ['item' => null],
-            'errors'  => [],
-            'meta'    => ['pagination' => null],
-        ], $statusCode);
-    }
-
-    /**
      * Error response
      *
      * @param array<string, mixed> $errors
@@ -104,41 +65,5 @@ trait ApiResponseTrait
             'errors'  => $errors,
             'meta'    => \array_merge(['pagination' => null], $meta),
         ], $statusCode);
-    }
-
-    /**
-     * Validation error response
-     *
-     * @param mixed $data
-     */
-    protected function validationError(
-        string $message,
-        string $field,
-        mixed $data = null,
-    ): JsonResponse {
-        return $this->errorResponse(
-            $message,
-            422,
-            [
-                'field'   => $field,
-                'message' => $message,
-                'data'    => $data,
-            ],
-        );
-    }
-
-    /**
-     * Not found error response
-     */
-    protected function notFoundError(string $resource, string $id): JsonResponse
-    {
-        return $this->errorResponse(
-            "{$resource} not found.",
-            404,
-            [
-                'field'   => 'id',
-                'message' => "No {$resource} with ID '{$id}' exists.",
-            ]
-        );
     }
 }
