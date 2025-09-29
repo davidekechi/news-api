@@ -267,6 +267,14 @@ php artisan schedule:list
 php artisan schedule:run
 ```
 
+**4. Package Installation Issues**
+```bash
+composer install
+``` or 
+```bash
+composer update
+```
+
 ## PSR Standards
 The codebase adheres to PSR-12 coding standards. Please ensure any contributions also follow these standards.
 Run the following command to check code style:
