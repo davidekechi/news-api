@@ -8,6 +8,7 @@ use App\Models\Article;
 use App\Models\Category;
 use App\Models\Source;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class ArticleRepository
 {
@@ -48,11 +49,46 @@ class ArticleRepository
                     ->orWhere('author', 'ILIKE', "%{$search}%");
                 });
             })
-            ->when(isset($filters['sources']), function ($q) use ($filters) {
-                $q->whereIn('source_id', Source::whereIn('uuid', $filters['sources'])->pluck('id'));
+            ->when(isset($filters['source']), function ($q) use ($filters) {
+                $id = Source::whereRaw('LOWER(api_handler) = ?', [\strtolower($filters['source'])])
+                            ->value('id');
+
+                return $id
+                    ? $q->where('source_id', $id)
+                    : $q->whereRaw('0 = 1');
             })
-            ->when(isset($filters['categories']), function ($q) use ($filters) {
-                $q->whereIn('category_id', Category::whereIn('uuid', $filters['categories'])->pluck('id'));
+            ->when(isset($filters['category']), function ($q) use ($filters) {
+                $id = Category::whereRaw('LOWER(name) = ?', [\strtolower($filters['category'])])
+                              ->value('id');
+
+                return $id
+                    ? $q->where('category_id', $id)
+                    : $q->whereRaw('0 = 1');
+            })
+            ->when(isset($filters['preferredSources']), function ($q) use ($filters) {
+                $preferredSources = \is_string($filters['preferredSources'])
+                ? \array_map('trim', \explode(',', $filters['preferredSources']))
+                : (array) $filters['preferredSources'];
+
+                $q->whereIn('source_id', Source::whereIn(DB::raw('LOWER(api_handler)'), \array_map('strtolower', $preferredSources))->pluck('id'));
+            })
+            ->when(isset($filters['preferredCategories']), function ($q) use ($filters) {
+                $preferredCategories = \is_string($filters['preferredCategories'])
+                ? \array_map('trim', \explode(',', $filters['preferredCategories']))
+                : (array) $filters['preferredCategories'];
+
+                $q->whereIn('category_id', Category::whereIn(DB::raw('LOWER(name)'), \array_map('strtolower', $preferredCategories))->pluck('id'));
+            })
+            ->when(isset($filters['preferredAuthors']), function ($q) use ($filters) {
+                $preferredAuthors = \is_string($filters['preferredAuthors'])
+                ? \array_map('trim', \explode(',', $filters['preferredAuthors']))
+                : (array) $filters['preferredAuthors'];
+
+                $q->where(function ($query) use ($preferredAuthors) {
+                    foreach ($preferredAuthors as $author) {
+                        $query->orWhereRaw('LOWER(author) ILIKE ?', ['%' . \strtolower($author) . '%']);
+                    }
+                });
             })
             ->when(isset($filters['from_date']), function ($q) use ($filters) {
                 $q->where('published_at', '>=', $filters['from_date']);

@@ -16,15 +16,15 @@ class RetrieveArticlesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'query'        => 'sometimes|string|min:2|max:255',
-            'sources'      => 'sometimes|array',
-            'sources.*'    => 'uuid|exists:sources,uuid',
-            'categories'   => 'sometimes|array',
-            'categories.*' => 'uuid|exists:categories,uuid',
-            'from_date'    => 'sometimes|date',
-            'to_date'      => 'sometimes|date|after_or_equal:from_date',
-            'page'         => 'sometimes|integer|min:1',
-            'per_page'     => 'sometimes|integer|min:1|max:100',
+            'query'               => 'sometimes|string|min:2|max:255',
+            'source'              => 'sometimes|string',
+            'category'            => 'sometimes|string',
+            'preferredSources'    => 'sometimes|string',
+            'preferredCategories' => 'sometimes|string',
+            'preferredAuthors'    => 'sometimes|string',
+            'from_date'           => 'sometimes|date',
+            'to_date'             => 'sometimes|date|after_or_equal:from_date',
+            'per_page'            => 'sometimes|integer|min:1|max:100',
         ];
     }
 
