@@ -33,7 +33,7 @@ RUN composer install --no-scripts --no-autoloader
 COPY . .
 
 # Copy environment file if it doesn't exist
-RUN if [ ! -f .env ]; then cp .env.example .env; fi
+COPY .env.example .env
 
 # Generate optimized autoloader and run post-install scripts
 RUN composer dump-autoload --optimize && \
