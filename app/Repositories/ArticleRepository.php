@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Models\Article;
+use App\Models\Category;
+use App\Models\Source;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ArticleRepository
@@ -36,30 +38,30 @@ class ArticleRepository
      */
     public function search(array $filters): ?LengthAwarePaginator
     {
-        return null;
-        // $query = Article::with(['source', 'categories'])
-        //     ->when(isset($filters['query']), function ($q) use ($filters) {
-        //         $q->where(function ($q) use ($filters) {
-        //             $q->where('title', 'like', "%{$filters['query']}%")
-        //               ->orWhere('content', 'like', "%{$filters['query']}%");
-        //         });
-        //     })
-        //     ->when(isset($filters['sources']), function ($q) use ($filters) {
-        //         $q->whereIn('source_id', $filters['sources']);
-        //     })
-        //     ->when(isset($filters['categories']), function ($q) use ($filters) {
-        //         $q->whereHas('categories', function ($q) use ($filters) {
-        //             $q->whereIn('name', $filters['categories']);
-        //         });
-        //     })
-        //     ->when(isset($filters['from_date']), function ($q) use ($filters) {
-        //         $q->where('published_at', '>=', $filters['from_date']);
-        //     })
-        //     ->when(isset($filters['to_date']), function ($q) use ($filters) {
-        //         $q->where('published_at', '<=', $filters['to_date']);
-        //     });
+        $query = Article::with(['source', 'category'])
+            ->when(isset($filters['query']), function ($q) use ($filters) {
+                $search = $filters['query'];
 
-        // return $query->orderBy('published_at', 'desc')
-        //             ->paginate($filters['per_page'] ?? 20);
+                $q->where(function ($q) use ($search) {
+                    $q->where('title', 'ILIKE', "%{$search}%")
+                    ->orWhere('description', 'ILIKE', "%{$search}%")
+                    ->orWhere('author', 'ILIKE', "%{$search}%");
+                });
+            })
+            ->when(isset($filters['sources']), function ($q) use ($filters) {
+                $q->whereIn('source_id', Source::whereIn('uuid', $filters['sources'])->pluck('id'));
+            })
+            ->when(isset($filters['categories']), function ($q) use ($filters) {
+                $q->whereIn('category_id', Category::whereIn('uuid', $filters['categories'])->pluck('id'));
+            })
+            ->when(isset($filters['from_date']), function ($q) use ($filters) {
+                $q->where('published_at', '>=', $filters['from_date']);
+            })
+            ->when(isset($filters['to_date']), function ($q) use ($filters) {
+                $q->where('published_at', '<=', $filters['to_date']);
+            });
+
+        return $query->orderBy('published_at', 'desc')
+                    ->paginate($filters['per_page'] ?? 20);
     }
 }

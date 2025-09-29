@@ -21,7 +21,7 @@ class SourceRepository
         $expiresAt = Carbon::tomorrow();
 
         return Cache::remember('sources.active', $expiresAt, function () {
-            return Source::where('is_active', true)->get(['id', 'name', 'base_url', 'api_handler']);
+            return Source::where('is_active', true)->get(['id', 'uuid', 'name', 'base_url', 'api_handler']);
         });
     }
 }
