@@ -62,6 +62,6 @@ class ArticleRepository
             });
 
         return $query->orderBy('published_at', 'desc')
-                    ->paginate($filters['per_page'] ?? 20);
+                    ->paginate($filters['per_page'] ?? config('variables.pagination.default_per_page', 10));
     }
 }

@@ -22,9 +22,28 @@ class ArticleController extends Controller
 
     public function index(RetrieveArticlesRequest $request): JsonResponse
     {
-        $articles = $this->articleRepository->search($request->validated());
+        try {
+            $articles = $this->articleRepository->search($request->validated());
 
-        return response()->json(new ArticleCollection($articles));
+            return $this->successCollection(
+                $articles,
+                [
+                    'items' => new ArticleCollection($articles),
+                ],
+                'Articles retrieved successfully.',
+            );
+        } catch (\Exception $e) {
+            return $this->errorResponse(
+                $e->getMessage(),
+                422,
+                [
+                    'error' => 'Something went wrong while retrieving articles.',
+                ],
+                [
+                    'pagination' => null,
+                ],
+            );
+        }
     }
 
     public function filters(): JsonResponse
