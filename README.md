@@ -101,7 +101,7 @@ NYTIMES_API_KEY=your_nytimes_key_here
 Update `routes/console.php` to fetch articles every minute:
 
 ```php
-Schedule::command('fetch:news-articles')->everyMinute();
+Schedule::command('app:fetch-and-store-news-articles')->everyMinute();
 ```
 
 Then run the scheduler:
@@ -115,7 +115,7 @@ php artisan schedule:run
 Keep the default hourly schedule:
 
 ```php
-Schedule::command('fetch:news-articles')->hourly();
+Schedule::command('app:fetch-and-store-news-articles')->hourly();
 ```
 
 Set up a cron job on your server:
